@@ -1,42 +1,62 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add your styles.css content here, converted to Tailwind where possible */
+#movie-container {
+  @apply flex flex-wrap gap-4;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.movie-card {
+  @apply w-56 rounded-lg overflow-hidden shadow-md;
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+.movie-card img {
+  @apply w-full h-72 object-cover;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.movie-card .info {
+  @apply p-3 bg-white text-center;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+.movie-card .info h3 {
+  @apply text-lg mb-2;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.movie-card .info p {
+  @apply mb-2 text-gray-600;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+.filters {
+  @apply flex gap-3 mb-5;
+}
+
+.filters .genre-filter {
+  @apply px-5 py-2 border-2 border-gray-300 rounded-full cursor-pointer bg-white transition-colors duration-300;
+}
+
+.filters .genre-filter:hover {
+  @apply bg-gray-100;
+}
+
+#movie-details {
+  @apply m-5 p-5 bg-white shadow-md;
+}
+
+#movie-poster {
+  @apply w-full h-96 object-cover;
+}
+
+#movie-title {
+  @apply text-2xl font-bold mt-5;
+}
+
+#movie-description {
+  @apply mt-3 text-gray-600;
+}
+
+#movie-rating {
+  @apply mt-3 text-gray-600;
 }
