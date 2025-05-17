@@ -21,15 +21,16 @@ const nextConfig = {
       },
     ];
   },
-  // Disable static optimization for API routes
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals.push('@prisma/client');
-    }
-    return config;
-  },
   // Ensure API routes are handled as serverless functions
   output: 'standalone',
+  // Disable static optimization for API routes
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
+  onDemandEntries: {
+    // period (in ms) where the server will keep pages in the buffer
+    maxInactiveAge: 25 * 1000,
+    // number of pages that should be kept simultaneously without being disposed
+    pagesBufferLength: 2,
+  },
 };
 
 export default nextConfig;

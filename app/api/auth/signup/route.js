@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { getPrismaClient } from '@/lib/db';
 
-// Force dynamic rendering - this prevents Next.js from trying to build this route
+// Force dynamic rendering and prevent static optimization
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
 
 // Simple response for GET requests
 export async function GET() {
@@ -49,43 +50,48 @@ export async function POST(request) {
       );
     }
 
-    // Get Prisma client
-    const prisma = getPrismaClient();
+    // Dynamically import Prisma client
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    try {
+      // Check if user already exists
+      const existingUser = await prisma.user.findUnique({
+        where: { email }
+      });
 
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'User already exists' },
-        { status: 400 }
-      );
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword
+      if (existingUser) {
+        return NextResponse.json(
+          { error: 'User already exists' },
+          { status: 400 }
+        );
       }
-    });
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    return NextResponse.json(
-      { 
-        message: 'User created successfully', 
-        user: userWithoutPassword 
-      },
-      { status: 201 }
-    );
+      // Create user
+      const user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword
+        }
+      });
+
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+
+      return NextResponse.json(
+        { 
+          message: 'User created successfully', 
+          user: userWithoutPassword 
+        },
+        { status: 201 }
+      );
+    } finally {
+      await prisma.$disconnect();
+    }
   } catch (error) {
     console.error('Signup error:', error);
     return NextResponse.json(
