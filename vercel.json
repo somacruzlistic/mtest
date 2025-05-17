@@ -1,0 +1,16 @@
+{
+  "buildCommand": "next build",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./app/api/",
+  "functions": {
+    "app/api/**/*": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+} 
