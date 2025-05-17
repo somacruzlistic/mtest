@@ -4,16 +4,8 @@ const nextConfig = {
   images: {
     domains: ['image.tmdb.org', 'i.ytimg.com'],
   },
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Don't include API routes in client-side builds
-      config.module.rules.push({
-        test: /app\/api\/.*/,
-        loader: 'ignore-loader',
-      });
-    }
-    return config;
+  experimental: {
+    serverActions: true,
   },
 };
 
