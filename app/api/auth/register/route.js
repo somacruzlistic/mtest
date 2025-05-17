@@ -1,18 +1,16 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 
-// Force dynamic rendering and prevent static optimization
+// This route is completely dynamic and will never be analyzed during build
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
-export const fetchCache = 'force-no-store';
-export const revalidate = 0;
 
 // Simple response for GET requests
 export async function GET() {
   return NextResponse.json({ message: 'Please use POST method' }, { status: 405 });
 }
 
-// Handle signup requests
+// Handle registration requests
 export async function POST(request) {
   try {
     const { name, email, password, confirmPassword } = await request.json();
@@ -93,10 +91,10 @@ export async function POST(request) {
       await prisma.$disconnect();
     }
   } catch (error) {
-    console.error('Signup error:', error);
+    console.error('Registration error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
-}
+} 
