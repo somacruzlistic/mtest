@@ -7,6 +7,13 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
+  // Disable static optimization for API routes
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('@prisma/client');
+    }
+    return config;
+  },
   // Ensure API routes are handled as serverless functions
   output: 'standalone',
 };
