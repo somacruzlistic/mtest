@@ -1,17 +1,19 @@
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
-  try {
-    if (!req.body) {
-      return NextResponse.json(
-        { error: 'Request body is required' },
-        { status: 400 }
-      );
-    }
+  if (!prisma) {
+    console.error('Prisma client is not initialized');
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 
-    const { username, password } = await req.json();
+  try {
+    const body = await req.json();
+    const { username, password } = body;
 
     if (!username || !password) {
       return NextResponse.json(
@@ -21,11 +23,11 @@ export async function POST(req) {
     }
 
     // Check if username is already taken
-    const existing = await prisma.user.findUnique({ 
+    const existing = await prisma.user.findUnique({
       where: { username },
-      select: { id: true } // Only select the id field for efficiency
+      select: { id: true }
     });
-    
+
     if (existing) {
       return NextResponse.json(
         { error: 'Username is already taken' },
@@ -51,14 +53,14 @@ export async function POST(req) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const user = await prisma.user.create({
-      data: { 
+      data: {
         username,
         password: hashedPassword,
-        email: `${username}@placeholder.com` // We still need an email for Google auth compatibility
+        email: `${username}@placeholder.com`
       },
-      select: { id: true } // Only select the id field for the response
+      select: { id: true }
     });
 
     return NextResponse.json(
@@ -67,8 +69,7 @@ export async function POST(req) {
     );
   } catch (error) {
     console.error('Signup error:', error);
-    
-    // Check for specific Prisma errors
+
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'This username or email is already taken' },
