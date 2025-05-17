@@ -7,6 +7,8 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
+  // Ensure API routes are handled as serverless functions
+  output: 'standalone',
 };
 
 export default nextConfig;

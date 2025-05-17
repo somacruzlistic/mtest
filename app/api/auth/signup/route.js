@@ -1,22 +1,18 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-// Initialize Prisma Client lazily
-let prisma;
+// Prevent static optimization
+export const dynamic = 'force-dynamic';
 
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient();
-} else {
-  if (!global.prisma) {
-    global.prisma = new PrismaClient();
-  }
-  prisma = global.prisma;
+// This prevents the route from being built statically
+export async function GET() {
+  return Response.json({ message: 'Please use POST method' }, { status: 405 });
 }
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
-
 export async function POST(req) {
+  // Only initialize Prisma when the function is actually called
+  const prisma = new PrismaClient();
+
   try {
     const { username, password } = await req.json();
 
@@ -50,9 +46,11 @@ export async function POST(req) {
       },
     });
 
+    await prisma.$disconnect();
     return Response.json({ message: 'User created', userId: user.id });
   } catch (error) {
     console.error('Signup error:', error);
+    await prisma.$disconnect();
     return Response.json({ error: 'Failed to create user' }, { status: 500 });
   }
 }
